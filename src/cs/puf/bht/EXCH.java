@@ -5,6 +5,8 @@
  */
 package cs.puf.bht;
 
+import java.io.IOException;
+
 /**
  *
  * @author Christian
@@ -14,8 +16,15 @@ public class EXCH {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        // TODO code application logic here
+    public static void main(String[] args) throws IOException {
+        Highscore hs = new Highscore();
+        hs.addScore("Bart",240);
+        hs.addScore("Marge",300);
+        hs.addScore("Maggie",220);
+        hs.addScore("Homer",100);
+        hs.addScore("Lisa",270);
+
+        System.out.print(hs.getHighscoreString());
     }
     
 }
