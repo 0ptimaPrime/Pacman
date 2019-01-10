@@ -1,37 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package cs.puf.bht;
+package de.bht.puf.cs.server;
 
-import java.io.*;
+import de.bht.puf.cs.Score;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-/**
- *
- * @author Christian
- */
 public class Highscore {
-    // An arraylist of the type "score" we will use to work with the scores inside the class
     private ArrayList<Score> scores;
 
-    // The name of the file where the highscores will be saved
     private static final String HIGHSCORE_FILE = "scores.dat";
     
     static int maxScoresCount = 10;
 
-    //Initialising an in and outputStream for working with the file
     ObjectOutputStream outputStream = null;
     ObjectInputStream inputStream = null;
 
     public Highscore() {
-        //initialising the scores-arraylist
         scores = new ArrayList<Score>();
     }
     
-    public ArrayList<Score> getScores() throws IOException {
+    public ArrayList<Score> getScores() {
         loadScoreFile();
         sort();
         return scores;
@@ -42,22 +35,37 @@ public class Highscore {
         Collections.sort(scores, comparator);
     }
     
-    public void addScore(String name, int score) throws IOException {
+    public void addScore(Score score) {
         loadScoreFile();
-        scores.add(new Score(name, score));
+        scores.add(score);
         updateScoreFile();
     }
     
-    public void loadScoreFile() throws IOException {
+    public void addScore(String name, int score, String time) {
+        loadScoreFile();
+        scores.add(new Score(name, score, time));
+        updateScoreFile();
+    }
+    
+    public void loadScoreFile() {
         try {
             inputStream = new ObjectInputStream(new FileInputStream(HIGHSCORE_FILE));
             scores = (ArrayList<Score>) inputStream.readObject();
         } catch (FileNotFoundException e) {
-            System.out.println("[Laad] FNF Error: " + e.getMessage());
+            System.out.println("#######[ FNF ERROR ]#######");
+            System.out.println(e.getMessage());
+            System.out.println("############################");
+            System.out.println();
         } catch (IOException e) {
-            System.out.println("[Laad] IO Error: " + e.getMessage());
+            System.out.println("#######[ IO ERROR  ]#######");
+            System.out.println(e.getMessage());
+            System.out.println("############################");
+            System.out.println();
         } catch (ClassNotFoundException e) {
-            System.out.println("[Laad] CNF Error: " + e.getMessage());
+            System.out.println("#######[ CNF ERROR ]#######");
+            System.out.println(e.getMessage());
+            System.out.println("############################");
+            System.out.println();
         } finally {
             try {
                 if (outputStream != null) {
@@ -65,7 +73,10 @@ public class Highscore {
                     outputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("[Laad] IO Error: " + e.getMessage());
+                System.out.println("#######[ IO ERROR  ]#######");
+                System.out.println(e.getMessage());
+                System.out.println("############################");
+                System.out.println();
             }
         }
     }
@@ -90,19 +101,19 @@ public class Highscore {
         }
     }
     
-    public String getHighscoreString() throws IOException {
+    public String getHighscoreString() {
         String highscoreString = "";
         
-        ArrayList<Score> scores;
-        scores = getScores();
+        ArrayList<Score> scoreList;
+        scoreList = getScores();
 
         int i = 0;
-        int x = scores.size();
+        int x = scoreList.size();
         if (x > maxScoresCount) {
             x = maxScoresCount;
         }
         while (i < x) {
-            highscoreString += (i + 1) + ".\t" + scores.get(i).getName() + "\t\t" + scores.get(i).getScore() + "\n";
+            highscoreString += (i + 1) + ".\t" + scoreList.get(i).getName() + "\t\t" + scoreList.get(i).getScore() + "\n";
             i++;
         }
         return highscoreString;

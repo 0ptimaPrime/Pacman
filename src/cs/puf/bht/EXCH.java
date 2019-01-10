@@ -5,6 +5,7 @@
  */
 package cs.puf.bht;
 
+import de.bht.puf.cs.server.Highscore;
 import java.io.IOException;
 
 /**
@@ -18,11 +19,7 @@ public class EXCH {
      */
     public static void main(String[] args) throws IOException {
         Highscore hs = new Highscore();
-        hs.addScore("Bart",240);
-        hs.addScore("Marge",300);
-        hs.addScore("Maggie",220);
-        hs.addScore("Homer",100);
-        hs.addScore("Lisa",270);
+        hs.addScore("Bart",240,"0:05:23");
 
         System.out.print(hs.getHighscoreString());
     }
