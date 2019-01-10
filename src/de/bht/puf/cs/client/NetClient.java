@@ -16,8 +16,6 @@ public class NetClient {
         nObj.setScore((new Score(name, score, time)));
         NetObject obj = sendAndReceive(nObj);
         
-        System.out.println(obj.getAck());
-        
         return obj.getAck();
     }
     
@@ -27,16 +25,12 @@ public class NetClient {
         nObj.setScore(score);
         NetObject obj = sendAndReceive(nObj);
         
-        System.out.println(obj.getAck());
-        
         return obj.getAck();
     }
     
     public static String getHighscore() {
         
         NetObject obj = sendAndReceive((new NetObject(0)));
-        
-        System.out.print(obj.getHighscore());
         
         return obj.getHighscore();
     }
@@ -58,8 +52,6 @@ public class NetClient {
             out.close();
             in.close();
             socket.close();
-            
-            System.out.println(reply.getClass());
             
             return reply;
             

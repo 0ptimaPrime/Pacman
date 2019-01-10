@@ -1,11 +1,12 @@
 package de.bht.puf.cs;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Score {
+public class Score implements Serializable{
     private int score;
     private String name;
     private Date time;

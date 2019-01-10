@@ -24,6 +24,7 @@ public class TestNetClient {
     @Test
     public void TestGetHighscore () {
         String hs;
+        
         hs = NetClient.getHighscore();
         assertTrue(!hs.isEmpty());
         System.out.print(hs);
