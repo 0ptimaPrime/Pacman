@@ -7,9 +7,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * HighScore read and write Scores sorted to localstorage on NetServer
+ * 
+ * @version 1.0
+ * @author Christian Schroeter
+ */
 public class Highscore {
     private ArrayList<Score> scores;
 
@@ -103,6 +110,7 @@ public class Highscore {
     
     public String getHighscoreString() {
         String highscoreString = "";
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         
         ArrayList<Score> scoreList;
         scoreList = getScores();
@@ -113,7 +121,7 @@ public class Highscore {
             x = maxScoresCount;
         }
         while (i < x) {
-            highscoreString += (i + 1) + ".\t" + scoreList.get(i).getName() + "\t\t" + scoreList.get(i).getScore() + "\n";
+            highscoreString += (i + 1) + ".\t" +  scoreList.get(i).getScore() + "\t" + sdf.format(scoreList.get(i).getTimeAsDate()).toString() + "\t" + scoreList.get(i).getName() +"\n";
             i++;
         }
         return highscoreString;
