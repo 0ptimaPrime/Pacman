@@ -193,6 +193,8 @@ public class BoardView extends JPanel {
 				repaint();
 			}
 		});
+		
+		// add elements
 		add(bg_image);
 		add(bg_image_2);
 		add(nameLabel);
