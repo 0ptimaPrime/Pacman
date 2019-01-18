@@ -161,7 +161,7 @@ public class BoardView extends JPanel {
 		JLabel bg_image_2 = new JLabel(new ImageIcon("img/bild_start_2.gif"));
 		bg_image_2.setSize(730,520);
 		bg_image_2.setLocation(150, 16);
-		/*****************/
+
 		// UserData
 		JLabel nameLabel = new JLabel("<html><font color='white'>Player Name:</font></html>");
 		nameLabel.setFont(new Font("SANS_SERIF", Font.BOLD, 24));
@@ -193,7 +193,7 @@ public class BoardView extends JPanel {
 				repaint();
 			}
 		});
-		
+
 		// add elements
 		add(bg_image);
 		add(bg_image_2);
