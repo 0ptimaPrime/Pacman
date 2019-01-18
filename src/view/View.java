@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -38,6 +39,7 @@ public class View extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 		this.board = new BoardView(m);
+		this.board.setBackground(Color.BLACK); // Background Color Startseite
 		add(this.board);
 		setVisible(true);
 	}
