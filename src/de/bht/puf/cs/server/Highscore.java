@@ -1,6 +1,7 @@
 package de.bht.puf.cs.server;
 
 import de.bht.puf.cs.Score;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,6 +11,8 @@ import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * HighScore read and write Scores sorted to localstorage on NetServer
@@ -32,7 +35,7 @@ public class Highscore {
     }
     
     public ArrayList<Score> getScores() {
-        loadScoreFile();
+        loadScoreFile(false);
         sort();
         return scores;
     }
@@ -43,36 +46,43 @@ public class Highscore {
     }
     
     public void addScore(Score score) {
-        loadScoreFile();
+        loadScoreFile(false);
         scores.add(score);
         updateScoreFile();
     }
     
     public void addScore(String name, int score, String time) {
-        loadScoreFile();
+        loadScoreFile(false);
         scores.add(new Score(name, score, time));
         updateScoreFile();
     }
     
-    public void loadScoreFile() {
+    public void loadScoreFile(boolean emptyFile) {
         try {
             inputStream = new ObjectInputStream(new FileInputStream(HIGHSCORE_FILE));
             scores = (ArrayList<Score>) inputStream.readObject();
         } catch (FileNotFoundException e) {
-            System.out.println("#######[ FNF ERROR ]#######");
-            System.out.println(e.getMessage());
-            System.out.println("############################");
-            System.out.println();
+            System.out.print("#######[ FNF ERROR ]#######\n" 
+                           + e.getMessage() + "\n"
+                           + "############################\n\n");
+            try {
+                File yourFile = new File(HIGHSCORE_FILE);
+                yourFile.createNewFile(); // if file already exists will do nothing
+                loadScoreFile(true);
+            } catch (IOException ex) {
+                
+            }
+            
         } catch (IOException e) {
-            System.out.println("#######[ IO ERROR  ]#######");
-            System.out.println(e.getMessage());
-            System.out.println("############################");
-            System.out.println();
+            if (!emptyFile) {
+                System.out.print("#######[ IO ERROR  ]#######\n" 
+                               + e.getMessage() + "\n"
+                               + "############################\n\n");
+            }
         } catch (ClassNotFoundException e) {
-            System.out.println("#######[ CNF ERROR ]#######");
-            System.out.println(e.getMessage());
-            System.out.println("############################");
-            System.out.println();
+            System.out.print("#######[ CNF ERROR ]#######\n"
+                           + e.getMessage() + "\n"
+                           + "############################\n\n");
         } finally {
             try {
                 if (outputStream != null) {
@@ -80,10 +90,9 @@ public class Highscore {
                     outputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("#######[ IO ERROR  ]#######");
-                System.out.println(e.getMessage());
-                System.out.println("############################");
-                System.out.println();
+                System.out.print("#######[ IO ERROR  ]#######\n" 
+                               + e.getMessage() + "\n"
+                               + "############################\n\n");
             }
         }
     }
@@ -93,9 +102,9 @@ public class Highscore {
             outputStream = new ObjectOutputStream(new FileOutputStream(HIGHSCORE_FILE));
             outputStream.writeObject(scores);
         } catch (FileNotFoundException e) {
-            System.out.println("[Update] FNF Error: " + e.getMessage() + ",the program will try and make a new file");
+            System.out.print("[Update] FNF Error: " + e.getMessage() + ",the program will try and make a new file\n\n");
         } catch (IOException e) {
-            System.out.println("[Update] IO Error: " + e.getMessage());
+            System.out.print("[Update] IO Error: " + e.getMessage() +"\n\n");
         } finally {
             try {
                 if (outputStream != null) {
@@ -103,7 +112,7 @@ public class Highscore {
                     outputStream.close();
                 }
             } catch (IOException e) {
-                System.out.println("[Update] Error: " + e.getMessage());
+                System.out.print("[Update] Error: " + e.getMessage() + "\n\n");
             }
         }
     }

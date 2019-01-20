@@ -15,7 +15,41 @@ public class NetClient {
 
     private final static String SERVER = "127.0.0.1";
     private final static int PORT = 11111;
+    private static Socket socket;
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
     
+    public NetClient () {
+        openSession();
+    }
+    
+    public static boolean closeSession() {
+        NetObject obj = sendAndReceive((new NetObject(2)));
+        try {
+            in.close();
+            out.close();
+            socket.close();
+            
+            return true;
+        } catch (IOException ex) {
+        }
+        
+        return false;
+    }
+    
+    
+    public static void openSession() {
+        try {
+            //open new Socket
+            socket = new Socket (SERVER, PORT);
+            
+            //create in and out object streams
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException ex) {
+        }
+    }
+        
     /**
      * Send Score to NetServer
      * 
@@ -77,23 +111,11 @@ public class NetClient {
         
         //try to connect to NetServer
         try {
-            //open new Socket
-            Socket socket = new Socket (NetClient.SERVER, NetClient.PORT);
-            
-            //create in and out object streams
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            
             //send NetObject to open socket
             out.writeObject(obj);
             
             //store NetObject retrieved from socket
             reply = (NetObject) in.readObject();
-            
-            //close open streams and socket
-            out.close();
-            in.close();
-            socket.close();
             
             //return retrieved reply
             return reply;
@@ -105,4 +127,5 @@ public class NetClient {
         //return NetObject with type undefined
         return new NetObject(99);        
     }
+
 }
