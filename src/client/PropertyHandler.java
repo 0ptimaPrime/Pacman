@@ -40,6 +40,13 @@ public class PropertyHandler {
 		props.setProperty("app.user", name);
 	}
 	
+	public static void setGhostUpdate(int speed) {
+		if (props == null) {
+			new PropertyHandler();
+		}
+		props.setProperty("game.updateghost", String.valueOf(speed));
+	}
+	
 	public static String getProperty(String property) {
 		if (props == null) {
 			new PropertyHandler();

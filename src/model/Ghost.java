@@ -1,6 +1,9 @@
 package model;
 
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
@@ -9,13 +12,13 @@ import model.Model.DIRECTION;
 
 public class Ghost extends GameObject implements IFigure {
 	public enum GhostMode {
+		STOP,
 		CHASE,
 		SCATTER,
 		FRIGHTENED
 	}
 	
 	private GhostMode mode;
-	private GhostMode lastMode;
 	private String name;
 	private int[] scatterPos;
 	private volatile int lastDx;
@@ -29,12 +32,22 @@ public class Ghost extends GameObject implements IFigure {
 		
 		this.setPng(DIRECTION.RIGHT);
 	}
+	
+	public void resetGhost() {
+		position = Arrays.copyOf(initialPosition, initialPosition.length);
+		this.lastDx = 0;
+		this.lastDy = 0;
+		this.setPng(DIRECTION.RIGHT);
+	}
 
 	@Override
 	public void move(int dx, int dy) {
+		if (this.mode.equals(GhostMode.STOP)) {
+			return;
+		}
 		int speed = PropertyHandler.getPropertyAsInt("speed.ghost");
-		super.position[0] += (dx * speed);
-		super.position[1] += (dy * speed);
+		this.position[0] += (dx * speed);
+		this.position[1] += (dy * speed);
 		
 		this.lastDx = dx;
 		this.lastDy = dy;
@@ -72,15 +85,17 @@ public class Ghost extends GameObject implements IFigure {
 	public void setMode(GhostMode mode) {
 		if (this.mode != mode) {
 			if (mode == GhostMode.FRIGHTENED) {
-				this.lastMode = this.mode;
+				int speed = PropertyHandler.getPropertyAsInt("game.updateghost");
+				PropertyHandler.setGhostUpdate(speed + 2);
 				this.lastDx *= -1;
 				this.lastDy *= -1;
 				this.mode = mode;
+				return;
 			} else if (this.mode == GhostMode.FRIGHTENED) {
-				this.mode = lastMode;
-			} else {
-				this.mode = mode;
+				int speed = PropertyHandler.getPropertyAsInt("game.updateghost");
+				PropertyHandler.setGhostUpdate(speed - 2);
 			}
+			this.mode = mode;
 		}
 	}
 

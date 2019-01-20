@@ -1,6 +1,7 @@
 package model;
 
 import java.awt.Image;
+import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 
@@ -69,7 +70,7 @@ public class Pacman extends GameObject implements IFigure {
 	}
 
 	public void eatGhost() {
-
+		ghostsEaten++;
 	}
 
 	public void eatFruit() {
@@ -87,5 +88,29 @@ public class Pacman extends GameObject implements IFigure {
 	
 	public int getFruitsEaten() {
 		return fruitsEaten;
+	}
+
+	public int getGhostsEaten() {
+		return ghostsEaten;
+	}
+
+	public void reset(boolean deleteScore) {
+		this.position = Arrays.copyOf(initialPosition, initialPosition.length);
+		this.anim = 0;
+		this.lastDx = 0;
+		this.lastDy = 0;
+		
+		if (deleteScore) {
+			this.coinsEaten = 0;
+			this.fruitsEaten = 0;
+			this.ghostsEaten = 0;
+			this.hearts = 3;
+		}
+		
+		this.setPng(DIRECTION.RIGHT);
+	}
+
+	public int getHearts() {
+		return hearts;
 	}
 }

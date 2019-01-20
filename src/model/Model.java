@@ -1,5 +1,6 @@
 package model;
 
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Model {
 	}
 
 	public int calculateScore() {
-		return pacman.getCoinsEaten() * 10 + pacman.getFruitsEaten() * 50;
+		return pacman.getCoinsEaten() * 10 + pacman.getFruitsEaten() * 50 + pacman.getGhostsEaten() * 100;
 	}
 
 	public Pacman getPacman() {
@@ -62,5 +63,9 @@ public class Model {
 
 	public List<Ghost> getGhosts() {
 		return ghosts;
+	}
+
+	public Image getPacmanLivesImg() {
+		return new ImageIcon("img/pacman_0_right.png").getImage();
 	}
 }

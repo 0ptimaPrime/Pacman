@@ -1,15 +1,18 @@
 package model;
 
 import java.awt.Image;
+import java.util.Arrays;
 
 public class GameObject {
 	protected int[] position;
 	protected Image png;
+	protected int initialPosition[];
 	
 	public GameObject(int[] position) {
 		this.position = position;
+		initialPosition = Arrays.copyOf(position, position.length);
 	}
-
+	
 	public int[] getPosition() {
 		return this.position;
 	}

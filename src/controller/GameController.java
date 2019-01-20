@@ -1,16 +1,21 @@
 package controller;
 
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import client.PropertyHandler;
 import connection.Connection;
+import model.Ghost;
 import model.Ghost.GhostMode;
 import model.Model;
 import view.BlockElement;
@@ -43,6 +48,10 @@ public class GameController extends KeyAdapter implements ICallback {
 			this.moveGhostThread.start();
 		}
 
+		if (this.m.getPacman().getHearts() == 0) {
+			return;
+		}
+
 		super.keyPressed(e);
 		int keyCode = e.getKeyCode();
 
@@ -57,6 +66,7 @@ public class GameController extends KeyAdapter implements ICallback {
 		}
 
 		this.v.repaint();
+		checkCollision();
 	}
 
 	private void movePacman(int dx, int dy) {
@@ -77,7 +87,38 @@ public class GameController extends KeyAdapter implements ICallback {
 				isSomethingEatable();
 			}
 		}
+	}
 
+	private void checkCollision() {
+		Optional<Ghost> ghost = this.v.checkCollision();
+		if (ghost.isPresent()) {
+			if (m.getGhosts().get(0).getMode().equals(GhostMode.FRIGHTENED)) {
+				ghost.get().setMode(GhostMode.STOP);
+				ghost.get().resetGhost();
+				this.m.getPacman().eatGhost();
+				Timer t = new Timer();
+				t.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						ghost.get().setMode(GhostMode.CHASE);
+						v.repaint();
+					}
+				}, 5 * 1000);
+			} else {
+				moveGhostThread.stop();
+				moveGhostThread = null;
+				if (this.m.getPacman().loseHeart()) {
+					System.out.println("GameOVer");
+					
+					v.resetGame(true, true);
+				} else {
+					v.resetGame(false, false);
+					
+					// restart level
+				}
+			}
+		}
+		this.v.repaint();
 	}
 
 	private void isSomethingEatable() {
@@ -95,6 +136,12 @@ public class GameController extends KeyAdapter implements ICallback {
 			if ((levelBlock & BlockElement.POINT.getValue()) != 0) {
 				this.m.getPacman().eatCoin();
 				this.v.setLevelData(index, levelBlock & (BlockElement.POINT.getValue() - 1));
+				if (Arrays.asList(Arrays.stream(this.v.getLevelData()).boxed().toArray(Integer[]::new)).stream()
+						.filter(d -> (d & BlockElement.POINT.getValue()) != 0).collect(Collectors.toList())
+						.size() == 0) {
+					// all coins eaten
+					this.v.resetGame(true, false);
+				}
 			}
 			// Check if fruit is there and eat it
 			if ((levelBlock & BlockElement.FRUIT.getValue()) != 0) {
@@ -146,6 +193,7 @@ public class GameController extends KeyAdapter implements ICallback {
 
 	@Override
 	public void pacmanDead() {
+
 		// TODO Auto-generated method stub
 
 	}
@@ -167,6 +215,8 @@ public class GameController extends KeyAdapter implements ICallback {
 				int index = ghost.getPosition()[0] / blockSize + nBlocks * (int) (ghost.getPosition()[1] / blockSize);
 				int levelBlock = levelData[index];
 
+				// just an example of movement algorithm.. better way would be to describe
+				// different algorithm for each ghost
 				boolean recalculateMovement = (dx == 0 && dy == 0);
 				recalculateMovement |= (dx > 0 && (levelBlock & BlockElement.BORDER_RIGHT.getValue()) != 0);
 				recalculateMovement |= (dx < 0 && (levelBlock & BlockElement.BORDER_LEFT.getValue()) != 0);
@@ -198,8 +248,8 @@ public class GameController extends KeyAdapter implements ICallback {
 							dy = -1;
 						}
 					} else if (this.getPossibleMovementsInBlock(levelBlock) > 2 || (dx == 0 && dy == 0)) {
-						int target[] = {0,0};
-						if (ghost.getMode() == GhostMode.SCATTER) { 
+						int target[] = { 0, 0 };
+						if (ghost.getMode() == GhostMode.SCATTER) {
 							target = ghost.getScatterPos();
 						} else if (ghost.getMode() == GhostMode.CHASE) {
 							target = this.m.getPacman().getPosition();
@@ -208,7 +258,7 @@ public class GameController extends KeyAdapter implements ICallback {
 							target[0] = rand.nextInt(37) * blockSize;
 							target[1] = rand.nextInt(37) * blockSize;
 						}
-								
+
 						// if distX is bigger move x, else y
 						int distX = ghost.getPosition()[0] - target[0];
 						int distY = ghost.getPosition()[1] - target[1];
@@ -263,6 +313,7 @@ public class GameController extends KeyAdapter implements ICallback {
 
 			ghost.move(dx, dy);
 			this.v.repaint();
+			checkCollision();
 		});
 	}
 
@@ -305,9 +356,15 @@ public class GameController extends KeyAdapter implements ICallback {
 					updateGhosts();
 
 					int scatterGhost = PropertyHandler.getPropertyAsInt("game.ghostscattertime");
-					if (count == (scatterGhost - 1) * 10 && !m.getGhosts().get(0).getMode().equals(GhostMode.FRIGHTENED)) {
+					if (count == (scatterGhost - 1) * 10
+							&& !m.getGhosts().get(0).getMode().equals(GhostMode.FRIGHTENED)) {
 						// after 15sec
-						m.getGhosts().stream().forEach(ghost -> ghost.setMode(GhostMode.CHASE));
+						m.getGhosts().stream().forEach(ghost -> {
+							if (ghost.getMode().equals(GhostMode.SCATTER)) {
+								ghost.setMode(GhostMode.CHASE);
+							}
+						});
+
 					} else {
 						++count;
 					}
@@ -315,7 +372,7 @@ public class GameController extends KeyAdapter implements ICallback {
 
 				int updateGhost = PropertyHandler.getPropertyAsInt("game.updateghost");
 				try {
-					Thread.sleep(updateGhost * 100L);
+					Thread.sleep(updateGhost * 10L);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
