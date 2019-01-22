@@ -13,11 +13,13 @@ public class NetObject implements Serializable {
 
     //0 = HighScore Request
     //1 = add Score Request
+    //2 = close Session Request
     //99 = undefined
     private int type = 99;
     private boolean ack = false;
     private Score score;
     private String highscore;
+    private String serverSessionId;
     
     /**
      * NetObject with defined request type
@@ -106,5 +108,23 @@ public class NetObject implements Serializable {
      */
     public String getHighscore () {
         return this.highscore;
-    }    
+    }
+
+    /**
+     * Set Server Session ID
+     * 
+     * @param id    Session id at NetServer
+     */
+    public void setServerSessionId (String id) {
+        this.serverSessionId = id;
+    }
+    
+    /**
+     * Get Server Session ID
+     * 
+     * @return      Session id at Server 
+     */
+    public String getServerSessionId () {
+        return this.serverSessionId;
+    }
 }

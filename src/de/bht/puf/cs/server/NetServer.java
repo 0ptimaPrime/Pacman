@@ -1,6 +1,5 @@
 package de.bht.puf.cs.server;
 
-import de.bht.puf.cs.NetObject;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -9,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -20,102 +20,77 @@ import java.util.Calendar;
  */
 public class NetServer {
 
+    //define NetServer port
     private final static int PORT = 11111;
+    
+    //Vector to store active clients
+    static ArrayList<ClientHandler> activeClients = new ArrayList<>();
+    
+    static Highscore hs;
     
     /**
      * Start NetServer to listen on requests and reply them 
      */
     public static void main(String[] args) {
         
-        NetObject obj;
-        Highscore hs = new Highscore();
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar cal = Calendar.getInstance();
-        
+        hs = new Highscore();
+                
         //continously run server
         while (true) {    
             try {
                 //oen new socket
                 ServerSocket srv = new ServerSocket(NetServer.PORT);
                 //Output for logging purposes
-                System.out.println("Server running and listening on port " + NetServer.PORT);
-                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                System.out.println();
-
+                System.out.print(
+                        "Server running and listening on port " + NetServer.PORT +"\n"
+                      + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
+                
                 while(true) {
                     try {
                         //accept incoming request
                         Socket socket = srv.accept();
+                                                
+                        //create random session UUID
+                        //UUID uuid = UUID.randomUUID();
+                        //long l = ByteBuffer.wrap(uuid.toString().getBytes()).getLong();
+                        //String id = Long.toString(l, Character.MAX_RADIX);
+                        String id = socket.getInetAddress().toString().substring(1) + ":" + Integer.toString(socket.getPort()) + " @ " + Long.toString(cal.getTimeInMillis());
                         
                         //Output for logging purposes
-                        System.out.println("-------[ SRV INFO  ]-------");
-                        System.out.println("New Connection initiated");
-                        System.out.println(sdf.format(cal.getTime()));
-                        System.out.println("Remote: " + socket.getInetAddress().toString().substring(1) + ":" + socket.getPort());
-                        System.out.println("---------------------------");
-                        System.out.println();
-
+                        System.out.print("-------[ SRV INFO  ]-------\n"
+                                       + "New Connection initiated\n"
+                                       + sdf.format(cal.getTime()) + "\n"
+                                       + "Session: " + id + "\n"
+                                       + "---------------------------\n\n");
+                        
                         //create in and out object streams
                         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 
-                        //store retrieved NetObject
-                        obj = (NetObject) in.readObject();
+                        //create Handler for new client
+                        ClientHandler client = new ClientHandler(socket, in, out, id);
                         
-                        //continue depending on request type
-                        switch (obj.getType()) {
-                            case 0:
-                                //Output for logging purposes
-                                System.out.println("-------[ GHSR INFO ]-------");
-                                System.out.println("Get Highscore Request received.");
-                                
-                                //add HighScore to NetObject and set Ack to true
-                                obj.setHighscore(hs.getHighscoreString());
-                                obj.setAck(true);
-                                //send NetObject back to socket
-                                out.writeObject(obj);
-                                //Output for logging purposes
-                                System.out.println("--> Highscore send");
-                                System.out.println("---------------------------");
-                                System.out.println();
-                              break;
-                            case 1:
-                                //Output for logging purposes
-                                System.out.println("-------[ ASR INFO  ]-------");
-                                System.out.println("Add Score Request received.");
-                                System.out.println("---------------------------");
-                                System.out.println();
-                                
-                                //add Score to HighScore and set ACk to true
-                                hs.addScore(obj.getScore());
-                                obj.setAck(true);
-                                //send NetObject back to socket
-                                out.writeObject(obj);
-                              break;
-                            default:
-                                //Output for logging purposes
-                                System.out.println("-------[ SRV WARN  ]-------");
-                                System.out.println("Unknown Request received.");
-                                System.out.println("---------------------------");
-                                System.out.println();
-                        }
+                        //run as Thread to support other clients
+                        Thread clientSession = new Thread(client);
                         
+                        activeClients.add(client);
+                        clientSession.start();
                         
-                        System.out.println();
-                        //close in and out streams
-                        in.close();
-                        out.close();
-                    } catch (IOException | ClassNotFoundException ex) {
+                        activeClients.forEach(curClient -> curClient.closeDisconnected());
+                        activeClients.trimToSize();
+                        
+                    } catch (IOException ex) {
                         
                     }
                 }
                 
             } catch (BindException e) {
                 //Output for logging purposes
-                System.out.println("#######[ SRV ERROR ]#######");
-                System.out.println("server port already in use");
-                System.out.println("###########################");
-                System.out.println();
+                System.out.print("#######[ SRV ERROR ]#######\n"
+                               + "server port already in use\n"
+                               + "###########################\n\n");
                 try {
                     //wait before another start of NetServer
                     Thread.sleep(5000);

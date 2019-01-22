@@ -70,10 +70,9 @@ public class Score implements Serializable{
             this.time = sdf.parse(time);
         } catch (ParseException ex) {
             //Output for logging purposes
-            System.out.println("#######[ PST ERROR ]#######");
-            System.out.println("received time is misconfigured and couldn't be parsed");
-            System.out.println("###########################");
-            System.out.println();
+            System.out.print("#######[ PST ERROR ]#######\n"
+                           + "received time is misconfigured and couldn't be parsed\n"
+                           + "###########################\n\n");
         }
     }
     
