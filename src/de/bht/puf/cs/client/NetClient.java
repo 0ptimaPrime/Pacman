@@ -14,6 +14,8 @@ import java.net.Socket;
 public class NetClient {
 
     private final static String SERVER = "127.0.0.1";
+    //Alternate Server
+    //private final static String SERVER = "beuth.cs-networks.info";
     private final static int PORT = 11111;
     private static Socket socket;
     private static ObjectOutputStream out;
