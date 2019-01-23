@@ -2,8 +2,10 @@ package view;
 
 
 /**
-* Festlegen der BIT-Repräsentations-Werte der Wände für das Labyrinth. 
-* Jeder Zahlenwert steht für die Richtung einer festzulegenden Wand (oben, unten, rechts, links).
+* Setting BIT-Values representing the different directions a wall can be set.
+* Each value stands for one direction of a wall - top, down, right, left.
+* @author Antje Dehmel
+* @version 3.0
 * @param BORDER_LEFT
 * @param BORDER_TOP
 * @param BORDER_RIGHT
