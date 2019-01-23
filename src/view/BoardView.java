@@ -42,6 +42,9 @@ public class BoardView extends JPanel {
 		setFocusable(true);
 		setLayout(null);
 	}
+	/**
+	*Method to add fruit objects to the board, in between the walls on a random position.
+	*/
 
 	private void addRandomFruits() {
 		int nBlocks = PropertyHandler.getPropertyAsInt("view.nblock");
@@ -63,6 +66,9 @@ public class BoardView extends JPanel {
 		}
 	}
 
+	/**
+	*Method to paint login screen, remove login screen when the game starts and then paint the maze and initial objects.
+	*/
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -87,18 +93,24 @@ public class BoardView extends JPanel {
 		Toolkit.getDefaultToolkit().sync();
 		g2d.dispose();
 	}
-
+	/**
+	* Draw ghost objects into the maze according to the position and image of each given type of ghost.
+	*/
 	private void drawGhost(Graphics2D g2d) {
 		for (Ghost ghost : this.m.getGhosts()) {
 			g2d.drawImage(ghost.getPng(), ghost.getPosition()[0] + 1, ghost.getPosition()[1] + 1, this);
 		}
 	}
-
+	/**
+	* Draw pacman into the maze according to it's predefined position and image.
+	*/
 	private void drawPacman(Graphics2D g2d) {
 		g2d.drawImage(this.m.getPacman().getPng(), this.m.getPacman().getPosition()[0] + 1,
 				this.m.getPacman().getPosition()[1] + 1, this);
 	}
-
+	/**
+	* Draw (walls of) the maze based on the properties leveldata and blocksize. 
+	*/
 	private void drawMaze(Graphics2D g2d) {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 		int screenSize = PropertyHandler.getPropertyAsInt("view.nblock") * blockSize;
@@ -142,7 +154,9 @@ public class BoardView extends JPanel {
 			}
 		}
 	}
-
+	/**
+	* Draw score info below the maze.
+	*/
 	private void drawScore(Graphics2D g) {
 		g.setColor(new Color(96, 128, 255));
 		g.setFont(new Font("Helvetica", Font.BOLD, 14));
@@ -158,9 +172,11 @@ public class BoardView extends JPanel {
 					(int) (frameSizeY * 0.90 - blockSize * 0.7), this);
 		}
 	}
-
+	/**
+	*Set up the login view and add event listeners waiting for the player to push the start button.
+	*/
 	private void drawLoginView() {
-		// Headerbild Startseite
+		// Headerimage start page
 		JLabel bg_image = new JLabel(new ImageIcon("img/pacman_logo.jpg"));
 		bg_image.setSize(549, 250);
 		bg_image.setLocation(180, 20);
@@ -175,14 +191,14 @@ public class BoardView extends JPanel {
 		nameLabel.setSize(160, 28);
 		nameLabel.setLocation(300, 450);
 
-		// Feld zur Texteingabe
+		// Field for text input
 		Font font1 = new Font("SansSerif", Font.BOLD, 16);
 		JTextField playerName = new JTextField();
 		playerName.setSize(153, 32);
 		playerName.setFont(font1);
 		playerName.setLocation(nameLabel.getWidth() + nameLabel.getLocation().x + 10, nameLabel.getLocation().y);
 
-		// Start Button
+		// Start button
 		JButton startGame = new JButton(new ImageIcon("img/largeyellowbutton.gif"));
 		startGame.setSize(156, 40);
 		startGame.setLocation(playerName.getLocation().x, playerName.getLocation().y + playerName.getHeight() + 10);
