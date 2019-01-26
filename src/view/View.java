@@ -34,7 +34,6 @@ import model.Pacman;
 */
 public class View extends JFrame {
 	private Model m;
-	private ICallback callback;
 	private BoardView board;
 
 	public View(Model m) {
@@ -94,6 +93,10 @@ public class View extends JFrame {
 	public void resetGame(boolean resetCoins, boolean deleteScore) {
 		this.m.getPacman().reset(deleteScore);
 		this.m.getGhosts().stream().forEach(ghost -> ghost.resetGhost());
+		if (resetCoins && !deleteScore) {
+			int speed = PropertyHandler.getPropertyAsInt("game.updateghost");
+			PropertyHandler.setGhostUpdate(speed - 1);
+		}
 		if (resetCoins) {
 			this.board.restartGame(deleteScore);
 		}

@@ -1,8 +1,9 @@
 package controller;
 
-import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,11 +11,17 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import client.PropertyHandler;
 import connection.Connection;
+import model.Audio;
 import model.Ghost;
 import model.Ghost.GhostMode;
 import model.Model;
@@ -32,12 +39,22 @@ public class GameController extends KeyAdapter implements ICallback {
 	private Timer ghostScaredTimer;
 	private boolean isTimerRunning;
 	private Thread moveGhostThread;
+	private volatile boolean ghostCanMove;
+	private volatile boolean pacmanCanMove;
+	private Audio audio;
+	private String lastAudio;
+	private int lastAudioPrio;
 
 	public GameController(Model m, View v) {
 		this.m = m;
 		this.v = v;
 		this.ghostScaredTimer = new Timer();
 		this.isTimerRunning = false;
+		this.ghostCanMove = false;
+		this.pacmanCanMove = true;
+		this.lastAudio = "";
+		this.lastAudioPrio = Integer.MAX_VALUE;
+		playSound("sounds/pacman_beginning.wav", 5);
 		this.v.addKeyListener(this);
 	}
 
@@ -52,10 +69,10 @@ public class GameController extends KeyAdapter implements ICallback {
 			this.moveGhostThread.start();
 		}
 
-		if (this.m.getPacman().getHearts() == 0) {
+		if (this.m.getPacman().getHearts() == 0 || !this.pacmanCanMove) {
 			return;
 		}
-
+		
 		super.keyPressed(e);
 		int keyCode = e.getKeyCode();
 
@@ -69,11 +86,13 @@ public class GameController extends KeyAdapter implements ICallback {
 			movePacman(0, 1);
 		}
 
-		this.v.repaint();
+		this.ghostCanMove = true;
 		checkCollision();
+		this.v.repaint();
 	}
 
 	private void movePacman(int dx, int dy) {
+		playSound("sounds/pacman_chomp.wav", 4);
 		// If pacman completely in one square
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 
@@ -96,9 +115,10 @@ public class GameController extends KeyAdapter implements ICallback {
 	private void checkCollision() {
 		Optional<Ghost> ghost = this.v.checkCollision();
 		if (ghost.isPresent()) {
-			if (m.getGhosts().get(0).getMode().equals(GhostMode.FRIGHTENED)) {
+			if (ghost.get().getMode().equals(GhostMode.FRIGHTENED)) {
 				ghost.get().setMode(GhostMode.STOP);
 				ghost.get().resetGhost();
+				playSound("sounds/pacman_eatghost.wav", 1);
 				this.m.getPacman().eatGhost();
 				Timer t = new Timer();
 				t.schedule(new TimerTask() {
@@ -109,20 +129,26 @@ public class GameController extends KeyAdapter implements ICallback {
 					}
 				}, 5 * 1000);
 			} else {
-				moveGhostThread.stop();
-				moveGhostThread = null;
-				if (this.m.getPacman().loseHeart()) {
-					System.out.println("GameOVer");
+				this.ghostCanMove = false;
+				this.pacmanCanMove = false;
+				Timer t = new Timer();
+				t.schedule(new TimerTask() {
 					
+					@Override
+					public void run() {
+						pacmanCanMove = true;
+					}
+				}, 1000L);
+				
+				if (this.m.getPacman().loseHeart()) {
 					v.resetGame(true, true);
+					this.moveGhostThread.interrupt();
+					playSound("sounds/pacman_death.wav", 0);
 				} else {
 					v.resetGame(false, false);
-					
-					// restart level
 				}
 			}
 		}
-		this.v.repaint();
 	}
 
 	private void isSomethingEatable() {
@@ -150,8 +176,10 @@ public class GameController extends KeyAdapter implements ICallback {
 			// Check if fruit is there and eat it
 			if ((levelBlock & BlockElement.FRUIT.getValue()) != 0) {
 				this.m.getPacman().eatFruit();
+				playSound("sounds/pacman_eatfruit.wav", 1);
 				this.m.getGhosts().forEach(g -> {
 					g.setMode(GhostMode.FRIGHTENED);
+					playSound("sounds/pacman_intermission.wav", 1);
 				});
 				v.repaint();
 				if (isTimerRunning) {
@@ -316,8 +344,8 @@ public class GameController extends KeyAdapter implements ICallback {
 			}
 
 			ghost.move(dx, dy);
-			this.v.repaint();
 			checkCollision();
+			this.v.repaint();
 		});
 	}
 
@@ -334,6 +362,25 @@ public class GameController extends KeyAdapter implements ICallback {
 		return result;
 	}
 
+	private void playSound(String soundName, int prio) {
+			try {
+				if (audio == null || !soundName.equals(this.lastAudio) || !audio.isPlaying()) {
+					if (!this.lastAudio.isEmpty() && !soundName.equals(this.lastAudio) && prio < this.lastAudioPrio) {
+						audio.reset();
+					}
+					
+					audio = new Audio(new File(soundName).getAbsoluteFile());
+					audio.play();
+					this.lastAudioPrio = prio;
+				}
+				this.lastAudio = soundName;
+			} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+	}
+	
 	private int getPossibleMovementsInBlock(int levelBlock) {
 		Integer result = 0;
 		List<Integer> walls = new ArrayList<Integer>();
@@ -356,8 +403,12 @@ public class GameController extends KeyAdapter implements ICallback {
 		public void run() {
 			int count = 0;
 			while (true) {
-				if (v.isGameActive()) {
+				if (v.isGameActive() && ghostCanMove) {
 					updateGhosts();
+					if (moveGhostThread.isInterrupted()) {
+						moveGhostThread = null;
+						return;
+					}
 
 					int scatterGhost = PropertyHandler.getPropertyAsInt("game.ghostscattertime");
 					if (count == (scatterGhost - 1) * 10
@@ -376,10 +427,11 @@ public class GameController extends KeyAdapter implements ICallback {
 
 				int updateGhost = PropertyHandler.getPropertyAsInt("game.updateghost");
 				try {
-					Thread.sleep(updateGhost * 10L);
+					if (!moveGhostThread.isInterrupted()) {
+						moveGhostThread.sleep(updateGhost * 10L);
+					}					
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					
 				}
 			}
 		}

@@ -37,11 +37,13 @@ public class BoardView extends JPanel {
 	private boolean isLoginScreen;
 	private Image ii;
 	private int data[];
+	private boolean isFirstGame;
 
 	public BoardView(Model m) {
 		this.m = m;
 		this.isLoginScreen = true;
 		this.data = PropertyHandler.getLevelData();
+		this.isFirstGame = true;
 
 		addRandomFruits();
 		setFocusable(true);
@@ -80,7 +82,7 @@ public class BoardView extends JPanel {
 		Graphics2D g2d = (Graphics2D) g;
 
 		if (this.isLoginScreen) {
-			drawLoginView();
+			drawLoginView(g2d);
 			return;
 		}
 
@@ -151,9 +153,11 @@ public class BoardView extends JPanel {
 				if ((data[i] & BlockElement.FRUIT.getValue()) != 0) {
 					final int xVal = x;
 					final int yVal = y;
-					GameObject fruit = this.m.getFruits().stream()
-							.filter(f -> f.getPosition()[0] == xVal && f.getPosition()[1] == yVal).findFirst().get();
-					g2d.drawImage(fruit.getPng(), fruit.getPosition()[0] + 1, fruit.getPosition()[1] + 1, this);
+					Optional<GameObject> fruit = this.m.getFruits().stream()
+							.filter(f -> f.getPosition()[0] == xVal && f.getPosition()[1] == yVal).findFirst();
+					if (fruit.isPresent()) {
+						g2d.drawImage(fruit.get().getPng(), fruit.get().getPosition()[0] + 1, fruit.get().getPosition()[1] + 1, this);
+					}
 				}
 				++i;
 			}
@@ -165,7 +169,7 @@ public class BoardView extends JPanel {
 	private void drawScore(Graphics2D g) {
 		g.setColor(new Color(96, 128, 255));
 		g.setFont(new Font("Helvetica", Font.BOLD, 14));
-		String s = "Score: " + this.m.calculateScore();
+		String s = "Score: " + this.m.getScore().getScoreValue();
 
 		int frameSizeX = PropertyHandler.getPropertyAsInt("frame.sizeX");
 		int frameSizeY = PropertyHandler.getPropertyAsInt("frame.sizeY");
@@ -179,8 +183,9 @@ public class BoardView extends JPanel {
 	}
 	/**
 	*Set up the login view and add event listeners waiting for the player to push the start button.
+	 * @param g2d 
 	*/
-	private void drawLoginView() {
+	private void drawLoginView(Graphics2D g2d) {
 		// Headerimage start page
 		JLabel bg_image = new JLabel(new ImageIcon("img/pacman_logo.jpg"));
 		bg_image.setSize(549, 250);
@@ -203,6 +208,15 @@ public class BoardView extends JPanel {
 		playerName.setFont(font1);
 		playerName.setLocation(nameLabel.getWidth() + nameLabel.getLocation().x + 10, nameLabel.getLocation().y);
 
+		// GameOver
+		if (!this.isFirstGame) {
+			int frameSizeX = PropertyHandler.getPropertyAsInt("frame.sizeX");
+			int frameSizeY = PropertyHandler.getPropertyAsInt("frame.sizeY");
+			g2d.setColor(new Color(200, 0, 0));
+			g2d.setFont(new Font("Helvetica", Font.BOLD, 20));
+			g2d.drawString("Game Over. Play again?", (int) (frameSizeX * 0.1), (int) (frameSizeY * 0.60));
+		}
+		
 		// Start button
 		JButton startGame = new JButton(new ImageIcon("img/largeyellowbutton.gif"));
 		startGame.setSize(156, 40);
@@ -247,8 +261,11 @@ public class BoardView extends JPanel {
 	}
 
 	public void restartGame(boolean showLoginScreen) {
+		this.isFirstGame = false;
 		this.data = PropertyHandler.getLevelData();
-		addRandomFruits();
 		this.isLoginScreen = showLoginScreen;
+		if (!showLoginScreen) {
+			addRandomFruits();	
+		}
 	}
 }

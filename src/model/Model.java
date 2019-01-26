@@ -38,6 +38,7 @@ public class Model {
 		this.ghosts = new ArrayList<Ghost>();
 		createPacman();
 		createGhost();
+		this.score = new Score(pacman);
 	}
 
 	/**
@@ -77,8 +78,9 @@ public class Model {
 	 * Method calculateScore
 	 * @return int
 	 */
-	public int calculateScore() {
-		return pacman.getCoinsEaten() * 10 + pacman.getFruitsEaten() * 50 + pacman.getGhostsEaten() * 100;
+	public Score getScore() {
+		this.score.updateScore();
+		return this.score;
 	}
 
 	/**

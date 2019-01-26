@@ -40,6 +40,13 @@ public class PropertyHandler {
 		props.setProperty("app.user", name);
 	}
 	
+	public static String  getUserName() {
+		if (props == null) {
+			new PropertyHandler();
+		}
+		return props.getProperty("app.user");
+	}
+	
 	public static void setGhostUpdate(int speed) {
 		if (props == null) {
 			new PropertyHandler();
