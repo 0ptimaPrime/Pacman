@@ -9,6 +9,13 @@ import javax.swing.ImageIcon;
 
 import client.PropertyHandler;
 
+ /**
+ * class Model
+ * @author Antje Dehmel,
+ * @author Jose Mendez
+ * @version 1.0
+ *
+ */
 public class Model {
 	private List<GameObject> fruits;
 	private List<Ghost> ghosts;
