@@ -11,7 +11,7 @@ import client.PropertyHandler;
 
  /**
  * class Model
- * @author Antje Dehmel,
+ * @author Antje Dehmel
  * @author Jose Mendez
  * @version 1.0
  *
@@ -22,10 +22,17 @@ public class Model {
 	private Pacman pacman;
 	private Score score;
 
+	/**
+	 * @author Jose Mendez
+	 *
+	 */
 	public static enum DIRECTION {
 		UP, RIGHT, DOWN, LEFT
 	}
 
+	/**
+	 * 
+	 */
 	public Model() {
 		this.fruits = new ArrayList<GameObject>();
 		this.ghosts = new ArrayList<Ghost>();
@@ -33,12 +40,18 @@ public class Model {
 		createGhost();
 	}
 
+	/**
+	 * 
+	 */
 	private void createPacman() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 		int pacmanPos[] = { 15 * blockSize, 19 * blockSize };
 		this.pacman = new Pacman(pacmanPos);
 	}
 
+	/**
+	 * 
+	 */
 	private void createGhost() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 		int nBlocks = PropertyHandler.getPropertyAsInt("view.nblock");
@@ -52,26 +65,44 @@ public class Model {
 		}
 	}
 
+	/**
+	 * @param position Array
+	 */
 	public void createFruit(int[] position) {
 		this.fruits.add(new Fruit(position));
 	}
 
+	/**
+	 * @return int
+	 */
 	public int calculateScore() {
 		return pacman.getCoinsEaten() * 10 + pacman.getFruitsEaten() * 50 + pacman.getGhostsEaten() * 100;
 	}
 
+	/**
+	 * @return Pacman Object
+	 */
 	public Pacman getPacman() {
 		return pacman;
 	}
 
+	/**
+	 * @return List<GameObject> 
+	 */
 	public List<GameObject> getFruits() {
 		return this.fruits;
 	}
 
+	/**
+	 * @return List<Ghost>
+	 */
 	public List<Ghost> getGhosts() {
 		return ghosts;
 	}
 
+	/**
+	 * @return ImageIcon Object
+	 */
 	public Image getPacmanLivesImg() {
 		return new ImageIcon("img/pacman_0_right.png").getImage();
 	}
