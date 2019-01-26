@@ -27,7 +27,11 @@ import model.Ghost;
 import model.Ghost.GhostMode;
 import model.Model;
 import model.Pacman;
-
+/**
+* @author Antje Dehmel
+* @version 1.0
+*
+*/
 public class View extends JFrame {
 	private Model m;
 	private ICallback callback;

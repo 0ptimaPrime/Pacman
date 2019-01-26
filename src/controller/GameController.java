@@ -20,7 +20,11 @@ import model.Ghost.GhostMode;
 import model.Model;
 import view.BlockElement;
 import view.View;
-
+/**
+* @author Antje Dehmel
+* @version 1.0
+*
+*/
 public class GameController extends KeyAdapter implements ICallback {
 	private Model m;
 	private View v;

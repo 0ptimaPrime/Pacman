@@ -27,6 +27,11 @@ import model.GameObject;
 import model.Ghost;
 import model.Model;
 
+/**
+* @author Antje Dehmel
+* @version 1.0
+*
+*/
 public class BoardView extends JPanel {
 	private Model m;
 	private boolean isLoginScreen;
