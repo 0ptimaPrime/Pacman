@@ -13,7 +13,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * Wrapperclass for game audio
- * @author Antje
+ * @author antje
  *
  */
 

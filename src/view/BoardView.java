@@ -28,7 +28,8 @@ import model.Ghost;
 import model.Model;
 
 /**
-* @author Antje Dehmel
+ * Paint the board - the labyrinth and all components for the game.
+* @author antje
 * @version 1.0
 *
 */

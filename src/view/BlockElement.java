@@ -4,7 +4,7 @@ package view;
 /**
 * Setting BIT-Values representing the different directions a wall can be set.
 * Each value stands for one direction of a wall - top, down, right, left.
-* @author Antje Dehmel
+* @author antje
 * @version 3.0
 * @param BORDER_LEFT
 * @param BORDER_TOP

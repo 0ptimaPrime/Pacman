@@ -7,7 +7,7 @@ import java.util.Arrays;
  * Parent class for different kinds of Game objects.
  * Set values position and image.
  * 
- * @author Antje
+ * @author antje
  *
  */
 public class GameObject {

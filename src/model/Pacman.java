@@ -1,6 +1,13 @@
 package model;
 
 import java.awt.Image;
+
+/**
+ * Define all parameters and possible actions for Game object Pacman. 
+ * 
+ * @author José Mendez
+ * @author antje
+ */
 import java.util.Arrays;
 
 import javax.swing.ImageIcon;
@@ -85,7 +92,7 @@ public class Pacman extends GameObject implements IFigure {
 	public int getCoinsEaten() {
 		return coinsEaten;
 	}
-	
+
 	public int getFruitsEaten() {
 		return fruitsEaten;
 	}
@@ -99,14 +106,14 @@ public class Pacman extends GameObject implements IFigure {
 		this.anim = 0;
 		this.lastDx = 0;
 		this.lastDy = 0;
-		
+
 		if (deleteScore) {
 			this.coinsEaten = 0;
 			this.fruitsEaten = 0;
 			this.ghostsEaten = 0;
 			this.hearts = 3;
 		}
-		
+
 		this.setPng(DIRECTION.RIGHT);
 	}
 

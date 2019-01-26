@@ -9,8 +9,9 @@ import javax.swing.ImageIcon;
 
 import client.PropertyHandler;
 
- /**
- * class Model
+/**
+ * Model. Saves recent parameters for all objects and data in the game. 
+ * 
  * @author antje
  * @author Jose Mendez
  * @version 1.0
@@ -42,7 +43,7 @@ public class Model {
 	}
 
 	/**
-	 * 
+	 * Create Pacman on a predefined spot in the labyrinth.
 	 */
 	private void createPacman() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
@@ -51,7 +52,7 @@ public class Model {
 	}
 
 	/**
-	 * the method create a number of Ghost objects
+	 * Add up to 4 ghosts.
 	 */
 	private void createGhost() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
@@ -67,7 +68,8 @@ public class Model {
 	}
 
 	/**
-	 * Method createFruit
+	 * Add fruits to the board.
+	 * 
 	 * @param position Array
 	 */
 	public void createFruit(int[] position) {
@@ -76,6 +78,7 @@ public class Model {
 
 	/**
 	 * Method calculateScore
+	 * 
 	 * @return int
 	 */
 	public Score getScore() {
@@ -91,7 +94,7 @@ public class Model {
 	}
 
 	/**
-	 * @return List<GameObject> 
+	 * @return List<GameObject>
 	 */
 	public List<GameObject> getFruits() {
 		return this.fruits;

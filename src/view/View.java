@@ -27,11 +27,13 @@ import model.Ghost;
 import model.Ghost.GhostMode;
 import model.Model;
 import model.Pacman;
+
 /**
-* @author Antje Dehmel
-* @version 1.0
-*
-*/
+ * Set frame and add or repaint board.
+ * @author antje
+ * @version 1.0
+ *
+ */
 public class View extends JFrame {
 	private Model m;
 	private BoardView board;
@@ -74,15 +76,19 @@ public class View extends JFrame {
 		this.board.repaint();
 	}
 
+	/**
+	 * Check whether rectangle of a ghost and rectangle of Pacman touch.
+	 * 
+	 */
 	public Optional<Ghost> checkCollision() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 		Optional<Ghost> ghosts = this.m.getGhosts().stream().filter(ghost -> {
 			Rectangle rectGhost = new Rectangle(ghost.getPosition()[0], ghost.getPosition()[1], blockSize, blockSize);
 			Rectangle rectPacman = new Rectangle(this.m.getPacman().getPosition()[0],
 					this.m.getPacman().getPosition()[1], blockSize, blockSize);
-			return rectGhost.intersects(rectPacman) && !ghost.getMode().equals(GhostMode.STOP);	
+			return rectGhost.intersects(rectPacman) && !ghost.getMode().equals(GhostMode.STOP);
 		}).findFirst();
-			
+
 		return ghosts;
 	}
 
@@ -100,6 +106,6 @@ public class View extends JFrame {
 		if (resetCoins) {
 			this.board.restartGame(deleteScore);
 		}
-		
+
 	}
 }

@@ -6,7 +6,7 @@ import javax.swing.ImageIcon;
 
 /**
 * class Fruits
-* @author Antje
+* @author antje
 * @author Jose Mendez
 * @version 1.0
 *
