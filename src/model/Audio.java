@@ -11,6 +11,12 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+/**
+ * Wrapperclass for game audio
+ * @author Antje
+ *
+ */
+
 public class Audio {
 	private Clip clip;
 

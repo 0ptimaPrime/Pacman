@@ -27,11 +27,16 @@ import model.Ghost.GhostMode;
 import model.Model;
 import view.BlockElement;
 import view.View;
+
 /**
-* @author Antje Dehmel
-* @version 1.0
-*
-*/
+ * 
+ * Controller class. Defines how the game objects act and react to certain
+ * events. Updates model and view accordingly.
+ * 
+ * @author antje
+ * 
+ *
+ */
 public class GameController extends KeyAdapter implements ICallback {
 	private Model m;
 	private View v;
@@ -58,6 +63,10 @@ public class GameController extends KeyAdapter implements ICallback {
 		this.v.addKeyListener(this);
 	}
 
+	/**
+	 * Start thread for ghost movement. Determine how Pacman moves wafter key
+	 * events. Run method start collision.
+	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (!this.v.isGameActive()) {
@@ -72,7 +81,7 @@ public class GameController extends KeyAdapter implements ICallback {
 		if (this.m.getPacman().getHearts() == 0 || !this.pacmanCanMove) {
 			return;
 		}
-		
+
 		super.keyPressed(e);
 		int keyCode = e.getKeyCode();
 
@@ -91,6 +100,13 @@ public class GameController extends KeyAdapter implements ICallback {
 		this.v.repaint();
 	}
 
+	/**
+	 * Move Pacman. Check whether there is a wall in the direction the player wants
+	 * to move.
+	 * 
+	 * @param dx
+	 * @param dy
+	 */
 	private void movePacman(int dx, int dy) {
 		playSound("sounds/pacman_chomp.wav", 4);
 		// If pacman completely in one square
@@ -112,6 +128,9 @@ public class GameController extends KeyAdapter implements ICallback {
 		}
 	}
 
+	/**
+	 * Define what happens when Pacman collides witha ghost.
+	 */
 	private void checkCollision() {
 		Optional<Ghost> ghost = this.v.checkCollision();
 		if (ghost.isPresent()) {
@@ -133,13 +152,13 @@ public class GameController extends KeyAdapter implements ICallback {
 				this.pacmanCanMove = false;
 				Timer t = new Timer();
 				t.schedule(new TimerTask() {
-					
+
 					@Override
 					public void run() {
 						pacmanCanMove = true;
 					}
 				}, 1000L);
-				
+
 				if (this.m.getPacman().loseHeart()) {
 					v.resetGame(true, true);
 					this.moveGhostThread.interrupt();
@@ -151,6 +170,13 @@ public class GameController extends KeyAdapter implements ICallback {
 		}
 	}
 
+	/**
+	 * Make coins vanish in field when Pacman runs over it. Change leveldata
+	 * accordingly. When all coins are eaten, reset everything and repaint. Check if
+	 * there is a fruit in the blockElement and make Pacman eat it. Fruit disappears
+	 * an ghostmode is set to frightened.
+	 * 
+	 */
 	private void isSomethingEatable() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 		int nBlocks = PropertyHandler.getPropertyAsInt("view.nblock");
@@ -205,6 +231,13 @@ public class GameController extends KeyAdapter implements ICallback {
 		}
 	}
 
+	/**
+	 * Check if there is a wall in the direction the user wants to move Pacman.
+	 * 
+	 * @param dx
+	 * @param dy
+	 * @return boolean
+	 */
 	private boolean isWallNextToPacman(int dx, int dy) {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
 		int nBlocks = PropertyHandler.getPropertyAsInt("view.nblock");
@@ -226,10 +259,11 @@ public class GameController extends KeyAdapter implements ICallback {
 	@Override
 	public void pacmanDead() {
 
-		// TODO Auto-generated method stub
-
 	}
 
+	/**
+	 * Method defines how ghosts move through the labyrinth
+	 */
 	private void updateGhosts() {
 		// ghost has 3 modes.. scattered chase frightened, when scattered, each ghost
 		// moves to its personal targettile outside the corner, after x seconds (or
@@ -349,6 +383,9 @@ public class GameController extends KeyAdapter implements ICallback {
 		});
 	}
 
+	/**
+	 * Specify how ghosts move when meeting a corner on the map
+	 */
 	private int[] getMovementAfterCorner(int dx, int dy, int levelBlock) {
 		int result[] = { 0, 0 };
 		if (dx != 0) {
@@ -362,25 +399,38 @@ public class GameController extends KeyAdapter implements ICallback {
 		return result;
 	}
 
+	/**
+	 * Define which sound is played when according to predefined priority for each
+	 * sound.
+	 * 
+	 * @param soundName
+	 * @param prio
+	 */
 	private void playSound(String soundName, int prio) {
-			try {
-				if (audio == null || !soundName.equals(this.lastAudio) || !audio.isPlaying()) {
-					if (!this.lastAudio.isEmpty() && !soundName.equals(this.lastAudio) && prio < this.lastAudioPrio) {
-						audio.reset();
-					}
-					
-					audio = new Audio(new File(soundName).getAbsoluteFile());
-					audio.play();
-					this.lastAudioPrio = prio;
+		try {
+			if (audio == null || !soundName.equals(this.lastAudio) || !audio.isPlaying()) {
+				if (!this.lastAudio.isEmpty() && !soundName.equals(this.lastAudio) && prio < this.lastAudioPrio) {
+					audio.reset();
 				}
-				this.lastAudio = soundName;
-			} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+				audio = new Audio(new File(soundName).getAbsoluteFile());
+				audio.play();
+				this.lastAudioPrio = prio;
 			}
-		
+			this.lastAudio = soundName;
+		} catch (LineUnavailableException | IOException | UnsupportedAudioFileException e) {
+
+			e.printStackTrace();
+		}
+
 	}
-	
+
+	/**
+	 * Determine which movements are possible when moving from one block to another
+	 * 
+	 * @param levelBlock
+	 * @return int
+	 */
 	private int getPossibleMovementsInBlock(int levelBlock) {
 		Integer result = 0;
 		List<Integer> walls = new ArrayList<Integer>();
@@ -398,6 +448,12 @@ public class GameController extends KeyAdapter implements ICallback {
 
 	}
 
+	/**
+	 * Determine how ghosts move when the game starts. Movement changes after 15
+	 * seconds, ghosts start chasing after Pacman.
+	 * 
+	 *
+	 */
 	private class MoveGhostThread implements Runnable {
 		@Override
 		public void run() {
@@ -413,7 +469,7 @@ public class GameController extends KeyAdapter implements ICallback {
 					int scatterGhost = PropertyHandler.getPropertyAsInt("game.ghostscattertime");
 					if (count == (scatterGhost - 1) * 10
 							&& !m.getGhosts().get(0).getMode().equals(GhostMode.FRIGHTENED)) {
-						// after 15sec
+						// after 15sec, but not when frightened
 						m.getGhosts().stream().forEach(ghost -> {
 							if (ghost.getMode().equals(GhostMode.SCATTER)) {
 								ghost.setMode(GhostMode.CHASE);
@@ -429,9 +485,9 @@ public class GameController extends KeyAdapter implements ICallback {
 				try {
 					if (!moveGhostThread.isInterrupted()) {
 						moveGhostThread.sleep(updateGhost * 10L);
-					}					
+					}
 				} catch (InterruptedException e) {
-					
+
 				}
 			}
 		}

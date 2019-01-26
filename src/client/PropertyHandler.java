@@ -11,6 +11,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * 
+ * Class to read and change config.properties.
+ * Property Handler as a Singleton
+ * @author Antje
+ *
+ */
+
 public class PropertyHandler {
 	private static String path = System.getProperty("user.dir") + "/resources/config/config.properties";
 	private static Properties props;
@@ -24,10 +32,10 @@ public class PropertyHandler {
 			stream.close();
 		} catch (FileNotFoundException e) {
 			System.out.println();
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		

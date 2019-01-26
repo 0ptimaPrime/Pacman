@@ -11,7 +11,7 @@ import client.PropertyHandler;
 
  /**
  * class Model
- * @author Antje Dehmel
+ * @author antje
  * @author Jose Mendez
  * @version 1.0
  *

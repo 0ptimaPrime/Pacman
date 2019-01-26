@@ -10,29 +10,39 @@ import javax.swing.ImageIcon;
 import client.PropertyHandler;
 import model.Model.DIRECTION;
 
+/**
+ * Define Ghosts as GameObjects, add additional parameters and methods.
+ * 
+ * @author antje
+ *
+ */
+
 public class Ghost extends GameObject implements IFigure {
+	// states for ghosts
 	public enum GhostMode {
-		STOP,
-		CHASE,
-		SCATTER,
-		FRIGHTENED
+		STOP, CHASE, SCATTER, FRIGHTENED
 	}
-	
+
 	private GhostMode mode;
 	private String name;
 	private int[] scatterPos;
+	// Prevent compiler optimization
 	private volatile int lastDx;
 	private volatile int lastDy;
-	
+
+	// Set starting parameters for ghosts
 	public Ghost(int[] position, String name, int[] scatterPos) {
 		super(position);
 		this.mode = GhostMode.SCATTER;
 		this.name = name;
 		this.scatterPos = scatterPos;
-		
+
 		this.setPng(DIRECTION.RIGHT);
 	}
-	
+
+	/**
+	 * Reset ghosts to their position of origin.
+	 */
 	public void resetGhost() {
 		position = Arrays.copyOf(initialPosition, initialPosition.length);
 		this.lastDx = 0;
@@ -41,6 +51,9 @@ public class Ghost extends GameObject implements IFigure {
 	}
 
 	@Override
+	/**
+	 * Set different paramaters for ghost movement
+	 */
 	public void move(int dx, int dy) {
 		if (this.mode.equals(GhostMode.STOP)) {
 			return;
@@ -48,7 +61,7 @@ public class Ghost extends GameObject implements IFigure {
 		int speed = PropertyHandler.getPropertyAsInt("speed.ghost");
 		this.position[0] += (dx * speed);
 		this.position[1] += (dy * speed);
-		
+
 		this.lastDx = dx;
 		this.lastDy = dy;
 		if (dx < 0) {
@@ -61,11 +74,14 @@ public class Ghost extends GameObject implements IFigure {
 			this.setPng(DIRECTION.DOWN);
 		}
 	}
-	
+
 	public boolean isGhostDeadOnCollision() {
 		return false;
 	}
 
+	/**
+	 * Set new image for ghosts when state is frightened.
+	 */
 	@Override
 	public void setPng(DIRECTION direction) {
 		String path = "";
@@ -74,7 +90,7 @@ public class Ghost extends GameObject implements IFigure {
 		} else {
 			path = "img/" + this.name + "_" + direction.toString().toLowerCase() + ".png";
 		}
-		
+
 		super.png = new ImageIcon(path).getImage();
 	}
 
@@ -82,6 +98,13 @@ public class Ghost extends GameObject implements IFigure {
 		return mode;
 	}
 
+	/**
+	 * Check mode of ghost. Change mode according to previous ghost mode. Set speed
+	 * of thread (slower thread for frightened ghosts, faster for non frightened
+	 * ghosts.
+	 * 
+	 * @param mode
+	 */
 	public void setMode(GhostMode mode) {
 		if (this.mode != mode) {
 			if (mode == GhostMode.FRIGHTENED) {
@@ -102,9 +125,9 @@ public class Ghost extends GameObject implements IFigure {
 	public int[] getScatterPos() {
 		return scatterPos;
 	}
-	
+
 	public int[] getLastD() {
-		int dx[] = {this.lastDx, this.lastDy};
+		int dx[] = { this.lastDx, this.lastDy };
 		return dx;
 	}
 }

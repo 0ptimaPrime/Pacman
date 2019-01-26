@@ -1,6 +1,6 @@
 package controller;
 /**
-* @author Antje Dehmel
+* 
 * @version 1.0
 *
 */
