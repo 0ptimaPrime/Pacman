@@ -23,7 +23,7 @@ public class Model {
 	private Score score;
 
 	/**
-	 * @author Jose Mendez
+	 * enum DIRECTION: define collections of directions constants
 	 *
 	 */
 	public static enum DIRECTION {
@@ -31,7 +31,7 @@ public class Model {
 	}
 
 	/**
-	 * 
+	 * Method Model create two ArrayList for GameObject object and Ghost object
 	 */
 	public Model() {
 		this.fruits = new ArrayList<GameObject>();
@@ -50,7 +50,7 @@ public class Model {
 	}
 
 	/**
-	 * 
+	 * the method create a number of Ghost objects
 	 */
 	private void createGhost() {
 		int blockSize = PropertyHandler.getPropertyAsInt("view.blocksize");
@@ -66,6 +66,7 @@ public class Model {
 	}
 
 	/**
+	 * Method createFruit
 	 * @param position Array
 	 */
 	public void createFruit(int[] position) {
@@ -73,6 +74,7 @@ public class Model {
 	}
 
 	/**
+	 * Method calculateScore
 	 * @return int
 	 */
 	public int calculateScore() {
